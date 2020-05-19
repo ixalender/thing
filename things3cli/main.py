@@ -17,9 +17,13 @@ def print_version() -> None:
 
 def get_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", action="store_true", help="show version and exit")
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="show version and exit")
     subparsers = parser.add_subparsers(
-        dest="command", description="Get help for commands with things3cli COMMAND --help"
+        dest="command",
+        description="Get help for commands with things3cli COMMAND --help"
     )
     return parser
 

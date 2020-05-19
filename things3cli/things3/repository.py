@@ -15,6 +15,7 @@ class TaskType(int, Enum):
 
 class TaskStorage(object):
     def get_projects(self, filters: ProjectFilter) -> List[Project]: ...
+
     def get_tasks(self, filters: TaskFilter) -> List[Task]: ...
 
 
@@ -24,8 +25,8 @@ class Things3SqliteStorage(TaskStorage):
 
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
         pass
-    
-    def _get_connection(self) -> sqlite3.Connection:
-        connection = sqlite3.connect('file:' + DATABASE_FILE + '?mode=ro', uri=True)
-        return connection
 
+    def _get_connection(self) -> sqlite3.Connection:
+        connection = sqlite3.connect(
+            'file:' + DATABASE_FILE + '?mode=ro', uri=True)
+        return connection

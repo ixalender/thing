@@ -12,7 +12,8 @@ def run_cli(thigs3cli_args: List[str]):
 
 
 def test_version(capsys):
-    mock_exit = mock.Mock(side_effect=ValueError("raised in test to exit early"))
+    mock_exit = mock.Mock(
+        side_effect=ValueError("raised in test to exit early"))
     with mock.patch.object(sys, "exit", mock_exit), pytest.raises(
         ValueError, match="raised in test to exit early"
     ):
@@ -23,7 +24,8 @@ def test_version(capsys):
 
 
 def test_help_text(capsys):
-    mock_exit = mock.Mock(side_effect=ValueError("raised in test to exit early"))
+    mock_exit = mock.Mock(
+        side_effect=ValueError("raised in test to exit early"))
     with mock.patch.object(sys, "exit", mock_exit), pytest.raises(
         ValueError, match="raised in test to exit early"
     ):

@@ -3,7 +3,7 @@ import sqlite3
 from typing import List
 from enum import Enum
 
-from .domain import Task, TaskFilter, Project, ProjectFilter
+from .models import Task, TaskFilter, Project, ProjectFilter
 from . import DATABASE_FILE
 
 

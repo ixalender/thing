@@ -3,28 +3,25 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-class Task(BaseModel):
+class Item(BaseModel):
     uuid: str
     title: str
+
+
+class TaskCheckListItem(Item):
+    status: bool
+
+
+class Task(Item):
     check_list: List[TaskCheckListItem]
     status: bool
 
 
-class TaskCheckListItem(BaseModel):
-    uuid: str
-    title: str
-    status: bool
-
-
-class Project(BaseModel):
-    uuid: str
-    title: str
+class Project(Item):
     tasks: List[Task]
 
 
-class Area(BaseModel):
-    uuid: str
-    title: str
+class Area(Item): ...
 
 
 class TaskFilter(BaseModel):

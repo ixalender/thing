@@ -1,7 +1,7 @@
 
 from typing import List
 
-from .domain import TaskFilter, ProjectFilter, Task, Project
+from .models import TaskFilter, ProjectFilter, Task, Project
 from .repository import TaskStorage
 
 

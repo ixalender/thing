@@ -1,14 +1,13 @@
 
 from .export import export
+from .list import list
 
 
 CMD_EXPORT = 'export'
 CMD_LIST = 'list'
-CMD_AREAS = 'areas'
-CMD_PROJECTS = 'projects'
-CMD_TASKS = 'tasks'
 
 
 __all__ = [
     CMD_EXPORT,
+    CMD_LIST,
 ]

@@ -6,7 +6,7 @@ import textwrap
 from .version import __version__
 from .exceptions import Things3CliException
 from . import commands
-
+from .commands.list import ListSubCommand
 from .things3.models import Project, ProjectFilter, TaskCheckListItem
 
 
@@ -20,7 +20,7 @@ def print_version() -> None:
 
 def _add_tasks(subparsers):
     p = subparsers.add_parser(
-        commands.CMD_TASKS,
+        ListSubCommand.tasks.value,
         help="Show tasks list",
         description="Show tasks list",
     )
@@ -29,7 +29,7 @@ def _add_tasks(subparsers):
 
 def _add_projects(subparsers):
     p = subparsers.add_parser(
-        commands.CMD_PROJECTS,
+        ListSubCommand.projects.value,
         help="Show projects list",
         description="Show projects list",
     )
@@ -38,7 +38,7 @@ def _add_projects(subparsers):
 
 def _add_areas(subparsers):
     p = subparsers.add_parser(
-        commands.CMD_AREAS,
+        ListSubCommand.areas.value,
         help="Show areas list",
         description="Show areas list",
     )
@@ -99,6 +99,8 @@ def check_args(args: argparse.Namespace):
 def run_command(args: argparse.Namespace) -> int:
     if args.command == commands.CMD_EXPORT:
         return commands.export(args.thing_uuid)
+    elif args.command == commands.CMD_LIST:
+        return commands.list(args)
     else:
         raise Things3CliException(f"Unknown command {args.command}")
 

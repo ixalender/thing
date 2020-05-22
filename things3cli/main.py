@@ -14,17 +14,39 @@ HIDE_CURSOR = "\033[?25l"
 SHOW_CURSOR = "\033[?25h"
 
 
-COMMAND_EXPORT = 'export'
-COMMAND_SHOW = 'show'
-
-
 def print_version() -> None:
     print(__version__)
 
 
+def _add_tasks(subparsers):
+    p = subparsers.add_parser(
+        commands.CMD_TASKS,
+        help="Show tasks list",
+        description="Show tasks list",
+    )
+    p.add_argument("project", help="Project uuid")
+
+
+def _add_projects(subparsers):
+    p = subparsers.add_parser(
+        commands.CMD_PROJECTS,
+        help="Show projects list",
+        description="Show projects list",
+    )
+    p.add_argument("area", help="Area uuid")
+
+
+def _add_areas(subparsers):
+    p = subparsers.add_parser(
+        commands.CMD_AREAS,
+        help="Show areas list",
+        description="Show areas list",
+    )
+
+
 def _add_export(subparsers):
     p = subparsers.add_parser(
-        "export",
+        commands.CMD_EXPORT,
         help="Export project or task",
         description="Export project or task",
     )
@@ -37,30 +59,19 @@ def _add_export(subparsers):
     )
 
 
-def _add_tasks(subparsers):
+def _add_list(subparsers):
     p = subparsers.add_parser(
-        "tasks",
-        help="Show tasks list",
-        description="Show tasks list",
+        commands.CMD_LIST,
+        help="Show any type of items",
+        description="Show any type of items",
     )
-    p.add_argument("project", help="Project uuid")
-
-
-def _add_projects(subparsers):
-    p = subparsers.add_parser(
-        "projects",
-        help="Show projects list",
-        description="Show projects list",
+    type_subparsers = p.add_subparsers(
+        dest="type",
+        description="Get help for commands with things3cli COMMAND --help"
     )
-    p.add_argument("area", help="Area uuid")
-
-
-def _add_areas(subparsers):
-    p = subparsers.add_parser(
-        "areas",
-        help="Show areas list",
-        description="Show areas list",
-    )
+    _add_areas(type_subparsers)
+    _add_projects(type_subparsers)
+    _add_tasks(type_subparsers)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -71,11 +82,9 @@ def get_parser() -> argparse.ArgumentParser:
         help="show version and exit")
     subparsers = parser.add_subparsers(
         dest="command",
-        description="Get help for commands with things3cli COMMAND --help"
+        description="Command"
     )
-    _add_areas(subparsers)
-    _add_projects(subparsers)
-    _add_tasks(subparsers)
+    _add_list(subparsers)
     _add_export(subparsers)
 
     return parser
@@ -88,7 +97,7 @@ def check_args(args: argparse.Namespace):
 
 
 def run_command(args: argparse.Namespace) -> int:
-    if args.command == COMMAND_EXPORT:
+    if args.command == commands.CMD_EXPORT:
         return commands.export(args.thing_uuid)
     else:
         raise Things3CliException(f"Unknown command {args.command}")

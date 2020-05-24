@@ -6,6 +6,7 @@ from enum import Enum
 from pydantic.generics import GenericModel
 from pydantic import validator, parse_obj_as
 
+from .exceptions import Things3DataBaseException, Things3StorageException
 from .models import Task, TaskFilter, Project, ProjectFilter, Area, Item
 from . import DATABASE_FILE
 
@@ -57,11 +58,14 @@ class SqliteQuery(Query, GenericModel, Generic[DataT]):
         return d
 
     def execute(self) -> List[DataT]:
-        self.connection.row_factory = self._dict_factory
-        cursor = self.connection.cursor()
-        cursor.execute(self.sql)
-        tasks = cursor.fetchall()
-        return list(map(lambda t: parse_obj_as(DataT, t), tasks))
+        try:
+            self.connection.row_factory = self._dict_factory
+            cursor = self.connection.cursor()
+            cursor.execute(self.sql)
+            tasks = cursor.fetchall()
+            return list(map(lambda t: parse_obj_as(DataT, t), tasks))
+        except sqlite3.OperationalError as ex:
+            raise Things3DataBaseException(ex)
 
 
 class Things3SqliteStorage(TaskStorage):
@@ -74,11 +78,13 @@ class Things3SqliteStorage(TaskStorage):
                 TMArea AS area
             ORDER BY area.title COLLATE NOCASE
         """
-        q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
-        return q.execute()
+        try:
+            q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
+            return q.execute()
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
 
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
-        IS_PROJECT = "type = 1"
         sql = f"""
             SELECT
                 task.uuid AS uuid,
@@ -87,12 +93,16 @@ class Things3SqliteStorage(TaskStorage):
             FROM
                 TMTask AS task
             WHERE
-                task.{IS_PROJECT} AND
+                task.type == {TaskType.project} AND
+                task.trashed == 0 AND
                 task.area == '{filters.area}'
             ORDER BY task.title COLLATE NOCASE
         """
-        q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
-        return q.execute()
+        try:
+            q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
+            return q.execute()
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
 
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
         pass

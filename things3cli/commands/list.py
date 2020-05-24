@@ -1,3 +1,4 @@
+from typing import List, Any
 import argparse
 from enum import Enum
 from things3cli.things3.repository import Things3SqliteStorage
@@ -17,17 +18,22 @@ def list(args: argparse.Namespace) -> int:
     if args.type == ListSubCommand.areas:
         au = AreaListUseCase(repo)
         areas = au.get_areas()
-        for a in areas:
-            print(a.uuid, a.title)
+        print_list(areas)
         
     elif args.type == ListSubCommand.projects:
         pu = ProjectListUseCase(repo)
         projects = pu.get_projects(ProjectFilter(area=args.area))
-        for p in projects:
-            print(p.uuid, p.title, p.area)
+        print_list(projects)
+
     elif args.type == ListSubCommand.tasks:
         print(args.project)
+
     else:
         raise Things3CliException(f"Unknown item type to list {args.type}")
 
     return 0
+
+
+def print_list(data: List[Any]):
+    for el in data:
+        print(el)

@@ -1,4 +1,9 @@
 
 
-class Things3ExportException(Exception):
-    pass
+class Things3ExportException(Exception): ...
+
+
+class Things3DataBaseException(Exception): ...
+
+
+class Things3StorageException(Exception): ...

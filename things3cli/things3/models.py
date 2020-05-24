@@ -1,6 +1,19 @@
 
+from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel
+
+
+class TaskStatus(int, Enum):
+    new = 0
+    canceled = 2
+    completed = 3
+
+
+class TaskType(int, Enum):
+    task = 0
+    project = 1
+    heading = 2
 
 
 class Item(BaseModel):
@@ -13,8 +26,9 @@ class TaskCheckListItem(Item):
 
 
 class Task(Item):
-    check_list: List[TaskCheckListItem]
-    status: bool
+    project: str
+    status: TaskStatus
+    check_list: Optional[List[TaskCheckListItem]]
 
 
 class Project(Item):
@@ -27,7 +41,7 @@ class Area(Item): ...
 
 class TaskFilter(BaseModel):
     uuid: Optional[str]
-    project: Optional[Project]
+    project: Optional[str]
     status: Optional[str]
 
 

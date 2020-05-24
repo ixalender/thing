@@ -5,7 +5,7 @@ from .models import TaskFilter, ProjectFilter, Task, Project, Area
 from .repository import TaskStorage
 
 
-class TasksListUseCase:
+class TaskListUseCase:
     def __init__(self, repo: TaskStorage) -> None:
         self.repo = repo
 

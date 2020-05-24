@@ -2,22 +2,16 @@
 import sqlite3
 import typing
 from typing import List, Generic, TypeVar, Any, NewType
-from enum import Enum
 from pydantic.generics import GenericModel
 from pydantic import validator, parse_obj_as
 
 from .exceptions import Things3DataBaseException, Things3StorageException
 from .models import Task, TaskFilter, Project, ProjectFilter, Area, Item
+from .models import TaskStatus, TaskType
 from . import DATABASE_FILE
 
 
 DataT = TypeVar('DataT', Project, Task, Area)
-
-
-class TaskType(int, Enum):
-    task = 0
-    project = 1
-    heading = 2
 
 
 class TaskStorage(object):
@@ -105,7 +99,33 @@ class Things3SqliteStorage(TaskStorage):
             raise Things3StorageException(ex)
 
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
-        pass
+        sql = f"""
+            SELECT
+                task.uuid AS uuid,
+                task.title AS title,
+                CASE
+                    WHEN task.project IS NULL THEN heading.project
+                    ELSE task.project
+                END AS project,
+                task.status AS status
+            FROM
+                TMTask AS task
+            LEFT OUTER JOIN TMTask heading
+                ON task.actionGroup = heading.uuid
+            LEFT OUTER JOIN TMTask project_heading
+                ON heading.project = project_heading.uuid
+            WHERE
+                task.type == {TaskType.task} AND
+                task.status IN ({TaskStatus.new}, {TaskStatus.completed}) AND
+                task.trashed == 0 AND
+                (task.project == '{filters.project}' OR heading.project == '{filters.project}')
+            ORDER BY task.title COLLATE NOCASE
+        """
+        try:
+            q = SqliteQuery[Task](connection=self._get_connection(), sql=sql)
+            return q.execute()
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
 
     def _get_connection(self) -> sqlite3.Connection:
         connection = sqlite3.connect(

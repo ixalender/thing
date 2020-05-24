@@ -3,8 +3,8 @@ import argparse
 from enum import Enum
 from things3cli.things3.repository import Things3SqliteStorage
 from things3cli.exceptions import Things3CliException
-from things3cli.things3.use_cases import AreaListUseCase, ProjectListUseCase
-from things3cli.things3.models import ProjectFilter
+from things3cli.things3.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
+from things3cli.things3.models import ProjectFilter, TaskFilter
 
 
 class ListSubCommand(str, Enum):
@@ -26,7 +26,9 @@ def list(args: argparse.Namespace) -> int:
         print_list(projects)
 
     elif args.type == ListSubCommand.tasks:
-        print(args.project)
+        tu = TaskListUseCase(repo)
+        tasks = tu.get_tasks(TaskFilter(project=args.project))
+        print_list(tasks)
 
     else:
         raise Things3CliException(f"Unknown item type to list {args.type}")

@@ -18,7 +18,8 @@ class Task(Item):
 
 
 class Project(Item):
-    tasks: List[Task]
+    area: str
+    tasks: Optional[List[Task]]
 
 
 class Area(Item): ...
@@ -32,4 +33,4 @@ class TaskFilter(BaseModel):
 
 class ProjectFilter(BaseModel):
     uuid: Optional[str]
-    area: Optional[Area]
+    area: Optional[str]

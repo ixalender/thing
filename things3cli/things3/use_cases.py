@@ -1,7 +1,7 @@
 
 from typing import List
 
-from .models import TaskFilter, ProjectFilter, Task, Project
+from .models import TaskFilter, ProjectFilter, Task, Project, Area
 from .repository import TaskStorage
 
 
@@ -19,6 +19,14 @@ class ProjectListUseCase:
 
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
         return self.repo.get_projects(filters)
+
+
+class AreaListUseCase:
+    def __init__(self, repo: TaskStorage) -> None:
+        self.repo = repo
+
+    def get_areas(self) -> List[Area]:
+        return self.repo.get_areas()
 
 
 class ExportProjectUseCase:

@@ -97,12 +97,17 @@ def check_args(args: argparse.Namespace):
 
 
 def run_command(args: argparse.Namespace) -> int:
-    if args.command == commands.CMD_EXPORT:
-        return commands.export(args.thing_uuid)
-    elif args.command == commands.CMD_LIST:
-        return commands.list(args)
-    else:
-        raise Things3CliException(f"Unknown command {args.command}")
+    try:
+        if args.command == commands.CMD_EXPORT:
+            return commands.export(args.thing_uuid)
+        elif args.command == commands.CMD_LIST:
+            return commands.list(args)
+        else:
+            raise Things3CliException(f"Unknown command {args.command}")
+    except Things3CliException as ex:
+        print(ex)
+    
+    return 1
 
 
 def cli() -> int:

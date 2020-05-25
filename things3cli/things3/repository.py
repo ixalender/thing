@@ -5,7 +5,7 @@ from typing import List, Generic, TypeVar, Any, NewType
 from pydantic.generics import GenericModel
 from pydantic import validator, parse_obj_as
 
-from .exceptions import Things3DataBaseException, Things3StorageException
+from .exceptions import Things3DataBaseException, Things3StorageException, Things3NotFoundException
 from .models import Task, TaskFilter, Project, ProjectFilter, Area, Item
 from .models import TaskStatus, TaskType
 from . import DATABASE_FILE
@@ -56,8 +56,13 @@ class SqliteQuery(Query, GenericModel, Generic[DataT]):
             self.connection.row_factory = self._dict_factory
             cursor = self.connection.cursor()
             cursor.execute(self.sql)
-            tasks = cursor.fetchall()
-            return list(map(lambda t: parse_obj_as(DataT, t), tasks))
+            rows = cursor.fetchall()
+            tasks = list(map(lambda t: parse_obj_as(DataT, t), rows))
+            if not tasks:
+                raise Things3NotFoundException('Couldn\'t find any tasks')
+
+            return tasks
+
         except sqlite3.OperationalError as ex:
             raise Things3DataBaseException(ex)
 
@@ -75,6 +80,8 @@ class Things3SqliteStorage(TaskStorage):
         try:
             q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
             return q.execute()
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There are no any Areas')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 
@@ -95,6 +102,8 @@ class Things3SqliteStorage(TaskStorage):
         try:
             q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
             return q.execute()
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There are no any projects for area {filters.area}')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 
@@ -124,6 +133,8 @@ class Things3SqliteStorage(TaskStorage):
         try:
             q = SqliteQuery[Task](connection=self._get_connection(), sql=sql)
             return q.execute()
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There are no any tasks for project {filters.project}')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 

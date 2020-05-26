@@ -72,7 +72,14 @@ class Things3SqliteStorage(TaskStorage):
         sql = f"""
             SELECT
                 area.uuid AS uuid,
-                area.title AS title
+                area.title AS title,
+                (SELECT COUNT(uuid)
+                 FROM TMTask AS project
+                 WHERE
+                   project.area = area.uuid AND
+                   project.trashed = 0 AND
+                   project.status = {TaskStatus.new}
+                ) AS projects
             FROM
                 TMArea AS area
             ORDER BY area.title COLLATE NOCASE

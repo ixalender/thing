@@ -36,7 +36,8 @@ class Project(Item):
     tasks: Optional[List[Task]]
 
 
-class Area(Item): ...
+class Area(Item):
+    projects: Optional[int]
 
 
 class TaskFilter(BaseModel):

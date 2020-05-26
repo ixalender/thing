@@ -7,6 +7,7 @@ from .version import __version__
 from .exceptions import Things3CliException
 from . import commands
 from .commands.list import ListSubCommand
+from .commands.show import ShowSubCommand
 from .things3.models import Project, ProjectFilter, TaskCheckListItem
 
 
@@ -36,6 +37,15 @@ def _add_projects(subparsers):
     p.add_argument("area", help="Area uuid")
 
 
+def _add_project(subparsers):
+    p = subparsers.add_parser(
+        ShowSubCommand.project.value,
+        help="Show project",
+        description="Show project",
+    )
+    p.add_argument("uuid", help="Project uuid")
+
+
 def _add_areas(subparsers):
     p = subparsers.add_parser(
         ListSubCommand.areas.value,
@@ -62,8 +72,8 @@ def _add_export(subparsers):
 def _add_list(subparsers):
     p = subparsers.add_parser(
         commands.CMD_LIST,
-        help="Show any type of items",
-        description="Show any type of items",
+        help="Show list of any type of items",
+        description="Show list of any type of items",
     )
     type_subparsers = p.add_subparsers(
         dest="type",
@@ -72,6 +82,19 @@ def _add_list(subparsers):
     _add_areas(type_subparsers)
     _add_projects(type_subparsers)
     _add_tasks(type_subparsers)
+
+
+def _add_show(subparsers):
+    p = subparsers.add_parser(
+        commands.CMD_SHOW,
+        help="Show any type of items",
+        description="Show any type of items",
+    )
+    type_subparsers = p.add_subparsers(
+        dest="type",
+        description="Get help for commands with things3cli COMMAND --help"
+    )
+    _add_project(type_subparsers)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -85,6 +108,7 @@ def get_parser() -> argparse.ArgumentParser:
         description="Command"
     )
     _add_list(subparsers)
+    _add_show(subparsers)
     _add_export(subparsers)
 
     return parser
@@ -102,6 +126,8 @@ def run_command(args: argparse.Namespace) -> int:
             return commands.export(args.thing_uuid)
         elif args.command == commands.CMD_LIST:
             return commands.list(args)
+        elif args.command == commands.CMD_SHOW:
+            return commands.show(args)
         else:
             raise Things3CliException(f"Unknown command {args.command}")
     except Things3CliException as ex:

@@ -17,6 +17,8 @@ DataT = TypeVar('DataT', Project, Task, Area)
 class TaskStorage(object):
     def get_projects(self, filters: ProjectFilter) -> List[Project]: ...
 
+    def get_project(self, filters: ProjectFilter) -> Project: ...
+
     def get_areas(self) -> List[Area]: ...
     
     def get_tasks(self, filters: TaskFilter) -> List[Task]: ...
@@ -24,6 +26,7 @@ class TaskStorage(object):
 
 class Query(GenericModel, Generic[DataT]):
     def execute(self) -> List[DataT]: ...
+    def execute_for_one(self) -> DataT: ...
 
     class Config:
         arbitrary_types_allowed = True
@@ -62,6 +65,21 @@ class SqliteQuery(Query, GenericModel, Generic[DataT]):
                 raise Things3NotFoundException('Couldn\'t find any tasks')
 
             return tasks
+
+        except sqlite3.OperationalError as ex:
+            raise Things3DataBaseException(ex)
+    
+    def execute_for_one(self) -> DataT:
+        try:
+            self.connection.row_factory = self._dict_factory
+            cursor = self.connection.cursor()
+            cursor.execute(self.sql)
+            row = cursor.fetchone()
+            if row is None:
+                raise Things3NotFoundException('Couldn\'t find any data')
+            task = parse_obj_as(DataT, row)
+
+            return task
 
         except sqlite3.OperationalError as ex:
             raise Things3DataBaseException(ex)
@@ -122,6 +140,27 @@ class Things3SqliteStorage(TaskStorage):
             return q.execute()
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There are no any projects for area {filters.area}')
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
+    
+    def get_project(self, filters: ProjectFilter) -> Project:
+        sql = f"""
+            SELECT
+                project.uuid AS uuid,
+                project.title AS title,
+                project.area AS area
+            FROM
+                TMTask AS project
+            WHERE
+                project.uuid == '{filters.uuid}' AND
+                project.type == {TaskType.project} AND
+                project.trashed == 0
+        """
+        try:
+            q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
+            return q.execute_for_one()
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There is no any project with id {filters.uuid}')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 

@@ -73,12 +73,14 @@ class Things3SqliteStorage(TaskStorage):
             SELECT
                 area.uuid AS uuid,
                 area.title AS title,
-                (SELECT COUNT(uuid)
-                 FROM TMTask AS project
-                 WHERE
-                   project.area = area.uuid AND
-                   project.trashed = 0 AND
-                   project.status = {TaskStatus.new}
+                (
+                    SELECT
+                        COUNT(uuid)
+                    FROM TMTask AS project
+                    WHERE
+                        project.area = area.uuid AND
+                        project.trashed = 0 AND
+                        project.status = {TaskStatus.new}
                 ) AS projects
             FROM
                 TMArea AS area
@@ -95,16 +97,25 @@ class Things3SqliteStorage(TaskStorage):
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
         sql = f"""
             SELECT
-                task.uuid AS uuid,
-                task.title AS title,
-                task.area AS area
+                project.uuid AS uuid,
+                project.title AS title,
+                project.area AS area,
+                (
+                    SELECT
+                        COUNT(uuid)
+                    FROM TMTask AS task
+                    WHERE
+                        task.project = project.uuid AND
+                        task.trashed = 0 AND
+                        task.status = {TaskStatus.new}
+                ) AS tasks
             FROM
-                TMTask AS task
+                TMTask AS project
             WHERE
-                task.type == {TaskType.project} AND
-                task.trashed == 0 AND
-                task.area == '{filters.area}'
-            ORDER BY task.title COLLATE NOCASE
+                project.type == {TaskType.project} AND
+                project.trashed == 0 AND
+                project.area == '{filters.area}'
+            ORDER BY project.title COLLATE NOCASE
         """
         try:
             q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)

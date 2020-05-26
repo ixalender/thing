@@ -33,7 +33,7 @@ class Task(Item):
 
 class Project(Item):
     area: str
-    tasks: Optional[List[Task]]
+    tasks: Optional[int]
 
 
 class Area(Item):

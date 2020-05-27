@@ -1,6 +1,6 @@
 
 from .export import export
-from .list import list
+from .list import show_list
 from .show import show
 
 

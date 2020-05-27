@@ -4,6 +4,7 @@ from typing import List
 from unittest import mock
 
 from things3cli import main
+from things3cli.commands.list import ListSubCommand
 
 
 def run_cli(thigs3cli_args: List[str]):
@@ -31,5 +32,11 @@ def test_help_text(capsys):
     ):
         assert not run_cli(["--help"])
     captured = capsys.readouterr()
-    print(captured)
     assert "usage: things3cli" in captured.out
+
+
+def test_list_text(capsys):
+    run_cli(["list"])
+    captured = capsys.readouterr()
+    types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
+    assert f"You should add the type of task you want to list, like: {types}" in captured.out

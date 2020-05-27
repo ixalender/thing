@@ -14,7 +14,7 @@ class ListSubCommand(str, Enum):
     tasks = 'tasks'
 
 
-def list(args: argparse.Namespace) -> int:
+def show_list(args: argparse.Namespace) -> int:
     repo = Things3SqliteStorage()
     try:
         if args.type == ListSubCommand.areas:
@@ -31,7 +31,10 @@ def list(args: argparse.Namespace) -> int:
             tu = TaskListUseCase(repo)
             tasks = tu.get_tasks(TaskFilter(project=args.project))
             print_list(tasks)
-
+        
+        elif args.type is None:
+            types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
+            raise Things3CliException(f"You should add the type of task you want to list, like: {types}")
         else:
             raise Things3CliException(f"Unknown item type to list {args.type}")
     except Things3StorageException as ex:

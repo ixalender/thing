@@ -1,17 +1,13 @@
 
-import sqlite3
 import typing
+import sqlite3
 from typing import List, Generic, TypeVar, Any, NewType
-from pydantic.generics import GenericModel
-from pydantic import validator, parse_obj_as
 
 from .exceptions import Things3DataBaseException, Things3StorageException, Things3NotFoundException
 from .models import Task, TaskFilter, Project, ProjectFilter, Area, Item
 from .models import TaskStatus, TaskType
+from .query import SqliteQuery
 from . import DATABASE_FILE
-
-
-DataT = TypeVar('DataT', Project, Task, Area)
 
 
 class TaskStorage(object):
@@ -22,67 +18,6 @@ class TaskStorage(object):
     def get_areas(self) -> List[Area]: ...
     
     def get_tasks(self, filters: TaskFilter) -> List[Task]: ...
-
-
-class Query(GenericModel, Generic[DataT]):
-    def execute(self) -> List[DataT]: ...
-    def execute_for_one(self) -> DataT: ...
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
-class SqliteQuery(Query, GenericModel, Generic[DataT]):
-    connection: sqlite3.Connection
-    sql: str
-
-    @validator('connection', always=True)
-    def check_connection(cls, v):
-        if v is None:
-            raise ValueError('must provide connection')
-        return v
-
-    @validator('sql', always=True)
-    def check_sql(cls, v):
-        if v is None:
-            raise ValueError('must provide sql')
-        return v
-
-    def _dict_factory(self, cursor, row) -> dict:
-        d = {}
-        for idx, col in enumerate(cursor.description):
-            d[col[0]] = row[idx]
-        return d
-
-    def execute(self) -> List[DataT]:
-        try:
-            self.connection.row_factory = self._dict_factory
-            cursor = self.connection.cursor()
-            cursor.execute(self.sql)
-            rows = cursor.fetchall()
-            tasks = list(map(lambda t: parse_obj_as(DataT, t), rows))
-            if not tasks:
-                raise Things3NotFoundException('Couldn\'t find any tasks')
-
-            return tasks
-
-        except sqlite3.OperationalError as ex:
-            raise Things3DataBaseException(ex)
-    
-    def execute_for_one(self) -> DataT:
-        try:
-            self.connection.row_factory = self._dict_factory
-            cursor = self.connection.cursor()
-            cursor.execute(self.sql)
-            row = cursor.fetchone()
-            if row is None:
-                raise Things3NotFoundException('Couldn\'t find any data')
-            task = parse_obj_as(DataT, row)
-
-            return task
-
-        except sqlite3.OperationalError as ex:
-            raise Things3DataBaseException(ex)
 
 
 class Things3SqliteStorage(TaskStorage):

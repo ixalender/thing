@@ -7,6 +7,7 @@ from things3cli.things3.repository import Things3SqliteStorage
 from things3cli.things3.exceptions import Things3StorageException
 from things3cli.things3.use_cases import ProjectViewUseCase
 from things3cli.things3.models import Item, ProjectFilter
+from things3cli.view import print_object
 
 
 class ShowSubCommand(str, Enum):
@@ -20,8 +21,8 @@ def show(args: argparse.Namespace) -> int:
     try:
         if args.type == ShowSubCommand.project:
             pu = ProjectViewUseCase(repo)
-            project = pu.get_projects(ProjectFilter(uuid=args.uuid))
-            print_task(project)
+            project = pu.get_project(ProjectFilter(uuid=args.uuid))
+            print_object(project.dict())
         elif args.type == ShowSubCommand.area:
             return 0
         elif args.type == ShowSubCommand.task:

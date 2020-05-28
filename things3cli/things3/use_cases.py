@@ -33,7 +33,7 @@ class ProjectViewUseCase:
     def __init__(self, repo: TaskStorage) -> None:
         self.repo = repo
 
-    def get_projects(self, filters: ProjectFilter) -> Project:
+    def get_project(self, filters: ProjectFilter) -> Project:
         return self.repo.get_project(filters)
 
 

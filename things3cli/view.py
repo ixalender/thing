@@ -15,7 +15,7 @@ def _reduce_col_sizes(m: dict, p: dict) -> dict:
     return m
 
 
-def print_data(data: List[dict]):
+def print_table(data: List[dict]) -> None:
     col_sizes: dict = reduce(
         _reduce_col_sizes,
         map(lambda k: {k: _find_widest_field(k, data)}, data[0].keys()),
@@ -27,3 +27,7 @@ def print_data(data: List[dict]):
             print('{0:{width}}'.format(str(v), width=col_sizes[c] + 1), end=' ')
         print()
     print()
+
+
+def print_object(data: dict) -> None:
+    print_table(list(map(lambda it: dict(label=it[0], value=it[1]), data.items())))

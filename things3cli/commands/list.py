@@ -6,7 +6,7 @@ from things3cli.exceptions import Things3CliException
 from things3cli.things3.exceptions import Things3StorageException
 from things3cli.things3.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
 from things3cli.things3.models import ProjectFilter, TaskFilter
-from things3cli.view import print_data
+from things3cli.view import print_table
 
 
 class ListSubCommand(str, Enum):
@@ -21,17 +21,17 @@ def show_list(args: argparse.Namespace) -> int:
         if args.type == ListSubCommand.areas:
             au = AreaListUseCase(repo)
             areas = au.get_areas()
-            print_data(list(map(lambda a: a.dict(), areas)))
+            print_table(list(map(lambda a: a.dict(), areas)))
             
         elif args.type == ListSubCommand.projects:
             pu = ProjectListUseCase(repo)
             projects = pu.get_projects(ProjectFilter(area=args.area))
-            print_data(list(map(lambda a: a.dict(), projects)))
+            print_table(list(map(lambda a: a.dict(), projects)))
 
         elif args.type == ListSubCommand.tasks:
             tu = TaskListUseCase(repo)
             tasks = tu.get_tasks(TaskFilter(project=args.project))
-            print_data(list(map(lambda a: a.dict(), tasks)))
+            print_table(list(map(lambda a: a.dict(), tasks)))
         
         elif args.type is None:
             types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))

@@ -4,7 +4,7 @@ import sqlite3
 from typing import List, Generic, TypeVar, Any, NewType
 
 from .exceptions import Things3DataBaseException, Things3StorageException, Things3NotFoundException
-from .models import Task, TaskFilter, Project, ProjectFilter, Area, Item
+from .models import Task, TaskFilter, Project, ProjectFilter, Area, AreaFilter, Item
 from .models import TaskStatus, TaskType
 from .query import SqliteQuery
 from . import DATABASE_FILE
@@ -16,6 +16,8 @@ class TaskStorage(object):
     def get_project(self, filters: ProjectFilter) -> Project: ...
 
     def get_areas(self) -> List[Area]: ...
+
+    def get_area(self, filters: AreaFilter) -> Area: ...
     
     def get_tasks(self, filters: TaskFilter) -> List[Task]: ...
 
@@ -99,6 +101,25 @@ class Things3SqliteStorage(TaskStorage):
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 
+    def get_area(self, filters: AreaFilter) -> Area:
+        sql = f"""
+            SELECT
+                area.uuid AS uuid,
+                area.title AS title
+            FROM
+                TMArea AS area
+            WHERE
+                area.uuid == '{filters.uuid}'
+            ORDER BY area.title COLLATE NOCASE
+        """
+        try:
+            q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
+            return q.execute_for_one()
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There is no any area with id {filters.uuid}')
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
+
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
         sql = f"""
             SELECT
@@ -119,7 +140,7 @@ class Things3SqliteStorage(TaskStorage):
                 task.type == {TaskType.task} AND
                 task.status IN ({TaskStatus.new}, {TaskStatus.completed}) AND
                 task.trashed == 0 AND
-                (task.project == '{filters.project}' OR heading.project == '{filters.project}')
+                (task.project == '{filters.project_uuid}' OR heading.project == '{filters.project_uuid}')
             ORDER BY task.title COLLATE NOCASE
         """
         try:

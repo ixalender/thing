@@ -2,10 +2,10 @@ from typing import List, Any
 import argparse
 from enum import Enum
 from things3cli.things3.repository import Things3SqliteStorage
-from things3cli.exceptions import Things3CliException
 from things3cli.things3.exceptions import Things3StorageException
-from things3cli.things3.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
-from things3cli.things3.models import ProjectFilter, TaskFilter
+from things3cli.things3.models import ProjectFilter, TaskFilter, Item
+from things3cli.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
+from things3cli.exceptions import Things3CliException
 from things3cli.view import print_table
 
 
@@ -21,17 +21,17 @@ def show_list(args: argparse.Namespace) -> int:
         if args.type == ListSubCommand.areas:
             au = AreaListUseCase(repo)
             areas = au.get_areas()
-            print_table(list(map(lambda a: a.dict(), areas)))
+            displa_list(areas)
             
         elif args.type == ListSubCommand.projects:
             pu = ProjectListUseCase(repo)
             projects = pu.get_projects(ProjectFilter(area=args.area))
-            print_table(list(map(lambda a: a.dict(), projects)))
+            displa_list(projects)
 
         elif args.type == ListSubCommand.tasks:
             tu = TaskListUseCase(repo)
-            tasks = tu.get_tasks(TaskFilter(project=args.project))
-            print_table(list(map(lambda a: a.dict(), tasks)))
+            tasks = tu.get_tasks(TaskFilter(project_uuid=args.project))
+            displa_list(tasks)
         
         elif args.type is None:
             types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
@@ -44,6 +44,5 @@ def show_list(args: argparse.Namespace) -> int:
     return 0
 
 
-def print_list(data: List[Any]):
-    for el in data:
-        print(el)
+def displa_list(data: List[Item]):
+    print_table(list(map(lambda a: a.dict(), data)))

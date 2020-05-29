@@ -31,3 +31,4 @@ def print_table(data: List[dict]) -> None:
 
 def print_object(data: dict) -> None:
     print_table(list(map(lambda it: dict(label=it[0], value=it[1]), data.items())))
+

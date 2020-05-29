@@ -60,13 +60,17 @@ def _add_export(subparsers):
         help="Export project or task",
         description="Export project or task",
     )
-    p.add_argument("thing_uuid", help="Project or task uuid")
-    p.add_argument(
-        "--format",
-        "-f",
-        action="store_true",
-        help="Export format"
+    type_subparsers = p.add_subparsers(
+        dest="type",
+        description="Get help for commands with things3cli COMMAND --help"
     )
+    _add_project(type_subparsers)
+    # p.add_argument(
+    #     "--format",
+    #     "-f",
+    #     action="store_true",
+    #     help="Export format"
+    # )
 
 
 def _add_list(subparsers):
@@ -123,7 +127,7 @@ def check_args(args: argparse.Namespace):
 def run_command(args: argparse.Namespace) -> int:
     try:
         if args.command == commands.CMD_EXPORT:
-            return commands.export(args.thing_uuid)
+            return commands.export(args)
         elif args.command == commands.CMD_LIST:
             return commands.show_list(args)
         elif args.command == commands.CMD_SHOW:

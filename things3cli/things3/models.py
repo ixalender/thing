@@ -42,10 +42,14 @@ class Area(Item):
 
 class TaskFilter(BaseModel):
     uuid: Optional[str]
-    project: Optional[str]
+    project_uuid: Optional[str]
     status: Optional[str]
 
 
 class ProjectFilter(BaseModel):
     uuid: Optional[str]
     area: Optional[str]
+
+
+class AreaFilter(BaseModel):
+    uuid: str

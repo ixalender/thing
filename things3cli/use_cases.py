@@ -9,6 +9,7 @@ from .things3.repository import TaskStorage
 
 class ProjectView(BaseModel):
     title: str
+    notes: str
     area: Area
     tasks: Optional[List[Task]]
 
@@ -18,7 +19,9 @@ class ProjectView(BaseModel):
 
         {notes}
 
+        ```
         {tasks}
+        ```
         """)
 
         TASK_TEMPLATE_MD = """[{status}] {title}"""
@@ -32,7 +35,7 @@ class ProjectView(BaseModel):
 
         md_data = PROJECT_TEMPLATE_MD.format(
             title=self.title,
-            notes='some notes',
+            notes=self.notes,
             tasks='\n'.join(map(
                 lambda t: TASK_TEMPLATE_MD.format(
                     status=match_status(t.status),
@@ -79,6 +82,7 @@ class ProjectViewUseCase:
 
         return ProjectView(
             title=project.title,
+            notes=project.notes,
             area=area,
             tasks=tasks
         )

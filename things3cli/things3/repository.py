@@ -85,6 +85,7 @@ class Things3SqliteStorage(TaskStorage):
             SELECT
                 project.uuid AS uuid,
                 project.title AS title,
+                project.notes AS notes,
                 project.area AS area
             FROM
                 TMTask AS project

@@ -85,7 +85,10 @@ class Things3SqliteStorage(TaskStorage):
             SELECT
                 project.uuid AS uuid,
                 project.title AS title,
-                project.notes AS notes,
+                CASE
+                    WHEN project.notes IS NULL THEN ''
+                    ELSE project.notes
+                END AS notes,
                 project.area AS area
             FROM
                 TMTask AS project

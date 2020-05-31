@@ -23,14 +23,16 @@ class ExportOutput(str, Enum):
 
 
 def _save_to_file(file_path: str, content: str) -> None:
-    print(file_path)
-    print(content)
+    try:
+        with open(file_path, 'w') as f:
+            f.write(content)
+    except IOError as ex:
+        raise Things3CliException(f'Couldn\'t save to output file {file_path}: {ex}')
 
 
 def _save_to_clipboard(content: str) -> None:
     try:
         subprocess.run('pbcopy', universal_newlines=True, input=content)
-        print('Done!')
     except (CalledProcessError, TimeoutExpired) as ex:
         raise Things3CliException(ex)
 
@@ -44,7 +46,7 @@ def _proc_output(args: argparse.Namespace, content: str) -> int:
         _save_to_file(args.file_path, content)
     elif args.output == ExportOutput.clipboard:
         _save_to_clipboard(content)
-    
+    print('Done!')
     return 0
 
 
@@ -52,7 +54,6 @@ def export(args: argparse.Namespace) -> int:
     repo = Things3SqliteStorage()
 
     try:
-        
         if args.type == ExportSubCommand.project:
             pro_usecase = ProjectViewUseCase(repo)
             project_view = pro_usecase.get_project(ProjectFilter(uuid=args.uuid))

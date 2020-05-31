@@ -1,4 +1,6 @@
 import argparse
+import subprocess
+from subprocess import TimeoutExpired, CalledProcessError
 from enum import Enum
 from pydantic import BaseModel
 
@@ -15,17 +17,46 @@ class ExportSubCommand(str, Enum):
     project = 'project'
 
 
-def _save_to_md(content: str) -> None:
+class ExportOutput(str, Enum):
+    file = 'file'
+    clipboard = 'clipboard'
+
+
+def _save_to_file(file_path: str, content: str) -> None:
+    print(file_path)
     print(content)
+
+
+def _save_to_clipboard(content: str) -> None:
+    try:
+        subprocess.run('pbcopy', universal_newlines=True, input=content)
+        print('Done!')
+    except (CalledProcessError, TimeoutExpired) as ex:
+        raise Things3CliException(ex)
+
+
+def _proc_output(args: argparse.Namespace, content: str) -> int:
+    if args is None:
+        outputs = ', '.join(map(lambda i: i.value, iter(ExportOutput)))
+        raise Things3CliException(f'You should specify the way to export [{outputs}].')
+
+    if args.output == ExportOutput.file:
+        _save_to_file(args.file_path, content)
+    elif args.output == ExportOutput.clipboard:
+        _save_to_clipboard(content)
+    
+    return 0
 
 
 def export(args: argparse.Namespace) -> int:
     repo = Things3SqliteStorage()
+
     try:
+        
         if args.type == ExportSubCommand.project:
             pro_usecase = ProjectViewUseCase(repo)
             project_view = pro_usecase.get_project(ProjectFilter(uuid=args.uuid))
-            _save_to_md(project_view.to_md())
+            return _proc_output(args, project_view.to_md())
 
         elif args.type == ExportSubCommand.area:
             raise NotImplementedError('Not implemented')

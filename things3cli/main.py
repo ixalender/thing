@@ -40,10 +40,25 @@ def _add_projects(subparsers):
 def _add_project(subparsers):
     p = subparsers.add_parser(
         ShowSubCommand.project.value,
-        help="Show project",
-        description="Show project",
+        help="Specified project",
+        description="Specified project",
     )
     p.add_argument("uuid", help="Project uuid")
+
+
+def _add_export_project(subparsers):
+    p = subparsers.add_parser(
+        ShowSubCommand.project.value,
+        help="Specified project",
+        description="Specified project",
+    )
+    p.add_argument("uuid", help="Project uuid")
+    outout_subparsers = p.add_subparsers(
+        dest="output",
+        description="Get help for commands with things3cli COMMAND --help"
+    )
+    _add_file(outout_subparsers)
+    _add_clipborad(outout_subparsers)
 
 
 def _add_areas(subparsers):
@@ -51,6 +66,23 @@ def _add_areas(subparsers):
         ListSubCommand.areas.value,
         help="Show areas list",
         description="Show areas list",
+    )
+
+
+def _add_file(subparsers):
+    p = subparsers.add_parser(
+        'file',
+        help="Specified path of output file",
+        description="Specified path of output file",
+    )
+    p.add_argument("file_path", help="Path to file")
+
+
+def _add_clipborad(subparsers):
+    p = subparsers.add_parser(
+        'clipboard',
+        help="Clipboard as an output of exported markdown text",
+        description="Clipboard as an output of exported markdown text",
     )
 
 
@@ -64,13 +96,7 @@ def _add_export(subparsers):
         dest="type",
         description="Get help for commands with things3cli COMMAND --help"
     )
-    _add_project(type_subparsers)
-    # p.add_argument(
-    #     "--format",
-    #     "-f",
-    #     action="store_true",
-    #     help="Export format"
-    # )
+    _add_export_project(type_subparsers)
 
 
 def _add_list(subparsers):
@@ -135,7 +161,7 @@ def run_command(args: argparse.Namespace) -> int:
         else:
             raise Things3CliException(f"Unknown command {args.command}")
     except Things3CliException as ex:
-        print(ex)
+        print(f'\nError: {ex}\n')
     
     return 1
 

@@ -1,27 +1,24 @@
 
 import typing
 import sqlite3
-from typing import List, Generic, TypeVar, Any, NewType
+from typing import List, Generic, TypeVar, Any, NewType, Optional
 from pydantic.generics import GenericModel
-from pydantic import validator, parse_obj_as
+from pydantic import validator, parse_obj_as, BaseModel
 
 from .models import Task, Project, Area
 from .exceptions import Things3DataBaseException, Things3NotFoundException
 
 
-DataT = TypeVar('DataT', Project, Task, Area)
+class Query(BaseModel):
+    def execute(self) -> List[dict]: ...
 
-
-class Query(GenericModel, Generic[DataT]):
-    def execute(self) -> List[DataT]: ...
-
-    def execute_for_one(self) -> DataT: ...
+    def execute_for_one(self) -> dict: ...
 
     class Config:
         arbitrary_types_allowed = True
 
 
-class SqliteQuery(Query, GenericModel, Generic[DataT]):
+class SqliteQuery(Query):
     connection: sqlite3.Connection
     sql: str
 
@@ -43,13 +40,13 @@ class SqliteQuery(Query, GenericModel, Generic[DataT]):
             d[col[0]] = row[idx]
         return d
 
-    def execute(self) -> List[DataT]:
+    def execute(self) -> List[dict]:
         try:
             self.connection.row_factory = self._dict_factory
             cursor = self.connection.cursor()
             cursor.execute(self.sql)
-            rows = cursor.fetchall()
-            tasks = list(map(lambda t: parse_obj_as(DataT, t), rows))
+            tasks = cursor.fetchall()
+            # print(tasks)
             if not tasks:
                 raise Things3NotFoundException('Couldn\'t find any data')
 
@@ -58,15 +55,14 @@ class SqliteQuery(Query, GenericModel, Generic[DataT]):
         except sqlite3.OperationalError as ex:
             raise Things3DataBaseException(ex)
     
-    def execute_for_one(self) -> DataT:
+    def execute_for_one(self) -> dict:
         try:
             self.connection.row_factory = self._dict_factory
             cursor = self.connection.cursor()
             cursor.execute(self.sql)
-            row = cursor.fetchone()
-            if row is None:
+            task = cursor.fetchone()
+            if task is None:
                 raise Things3NotFoundException('Couldn\'t find any data for one')
-            task = parse_obj_as(DataT, row)
 
             return task
 

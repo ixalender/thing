@@ -2,6 +2,7 @@
 import typing
 import sqlite3
 from typing import List, Generic, TypeVar, Any, NewType
+from pydantic import validator, parse_obj_as
 
 from .exceptions import Things3DataBaseException, Things3StorageException, Things3NotFoundException
 from .models import Task, TaskFilter, Project, ProjectFilter, Area, AreaFilter, Item
@@ -42,8 +43,10 @@ class Things3SqliteStorage(TaskStorage):
             ORDER BY area.title COLLATE NOCASE
         """
         try:
-            q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
-            return q.execute()
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            areas: List[dict] = q.execute()
+            return list(map(lambda t: parse_obj_as(Area, t), areas))
+
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There are no any Areas')
         except Things3DataBaseException as ex:
@@ -73,8 +76,10 @@ class Things3SqliteStorage(TaskStorage):
             ORDER BY project.title COLLATE NOCASE
         """
         try:
-            q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
-            return q.execute()
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            projects: List[dict] = q.execute()
+            return list(map(lambda t: parse_obj_as(Project, t), projects))
+
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There are no any projects for area {filters.area}')
         except Things3DataBaseException as ex:
@@ -98,8 +103,10 @@ class Things3SqliteStorage(TaskStorage):
                 project.trashed == 0
         """
         try:
-            q = SqliteQuery[Project](connection=self._get_connection(), sql=sql)
-            return q.execute_for_one()
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            project: dict = q.execute_for_one()
+            return parse_obj_as(Project, project)
+
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There is no any project with id {filters.uuid}')
         except Things3DataBaseException as ex:
@@ -117,8 +124,10 @@ class Things3SqliteStorage(TaskStorage):
             ORDER BY area.title COLLATE NOCASE
         """
         try:
-            q = SqliteQuery[Area](connection=self._get_connection(), sql=sql)
-            return q.execute_for_one()
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            area: dict = q.execute_for_one()
+            return parse_obj_as(Area, area)
+
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There is no any area with id {filters.uuid}')
         except Things3DataBaseException as ex:
@@ -148,8 +157,10 @@ class Things3SqliteStorage(TaskStorage):
             ORDER BY task.title COLLATE NOCASE
         """
         try:
-            q = SqliteQuery[Task](connection=self._get_connection(), sql=sql)
-            return q.execute()
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            tasks: List[dict] = q.execute()
+            return list(map(lambda t: parse_obj_as(Task, t), tasks))
+
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There are no any tasks for project {filters.project}')
         except Things3DataBaseException as ex:

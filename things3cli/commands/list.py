@@ -1,9 +1,11 @@
-from typing import List, Any
 import argparse
 from enum import Enum
+from functools import reduce
+from typing import List, Any, Optional
+
 from things3cli.things3.repository import Things3SqliteStorage
 from things3cli.things3.exceptions import Things3StorageException
-from things3cli.things3.models import ProjectFilter, TaskFilter, Item
+from things3cli.things3.models import ProjectFilter, TaskFilter, Item, Task
 from things3cli.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
 from things3cli.exceptions import Things3CliException
 from things3cli.view import print_table
@@ -21,17 +23,17 @@ def show_list(args: argparse.Namespace) -> int:
         if args.type == ListSubCommand.areas:
             au = AreaListUseCase(repo)
             areas = au.get_areas()
-            displa_list(areas)
+            display_list(areas)
             
         elif args.type == ListSubCommand.projects:
             pu = ProjectListUseCase(repo)
             projects = pu.get_projects(ProjectFilter(area=args.area))
-            displa_list(projects)
+            display_list(projects, exclude=['area', 'notes'])
 
         elif args.type == ListSubCommand.tasks:
             tu = TaskListUseCase(repo)
             tasks = tu.get_tasks(TaskFilter(project_uuid=args.project))
-            displa_list(tasks)
+            display_list(tasks, exclude=['project', 'check_list'])
         
         elif args.type is None:
             types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
@@ -44,5 +46,15 @@ def show_list(args: argparse.Namespace) -> int:
     return 0
 
 
-def displa_list(data: List[Item]):
-    print_table(list(map(lambda a: a.dict(), data)))
+def display_list(data: List[Item], exclude: Optional[List[str]] = None):
+    to_exclude = exclude or []
+
+    def filter_keys(obj: dict) -> dict:
+        out = dict()
+        for k, v in obj.items():
+            if k not in to_exclude:
+                out[k] = v
+        return out
+    
+    out_list = list(map(lambda a: filter_keys(a.dict()), data))
+    print_table(out_list)

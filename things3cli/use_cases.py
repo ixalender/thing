@@ -47,12 +47,24 @@ class ProjectView(BaseModel):
         return md_data
 
 
+class TaskView(BaseModel):
+    uuid: str
+    title: str
+    project: str
+    status: str
+    
+
 class TaskListUseCase:
     def __init__(self, repo: TaskStorage) -> None:
         self.repo = repo
 
-    def get_tasks(self, filters: TaskFilter) -> List[Task]:
-        return self.repo.get_tasks(filters)
+    def get_tasks(self, filters: TaskFilter) -> List[TaskView]:
+        return list(map(lambda t: TaskView(
+            uuid=t.uuid,
+            status=t.status.name,
+            title=t.title,
+            project=t.project,
+        ), self.repo.get_tasks(filters)))
 
 
 class ProjectListUseCase:
@@ -60,7 +72,8 @@ class ProjectListUseCase:
         self.repo = repo
 
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
-        return self.repo.get_projects(filters)
+        projects = self.repo.get_projects(filters)
+        return projects
 
 
 class AreaListUseCase:

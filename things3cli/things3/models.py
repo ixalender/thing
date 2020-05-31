@@ -33,7 +33,7 @@ class Task(Item):
 
 class Project(Item):
     area: str
-    notes: str
+    notes: Optional[str]
     tasks: Optional[int]
 
 

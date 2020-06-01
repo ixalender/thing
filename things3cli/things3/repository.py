@@ -53,6 +53,7 @@ class Things3SqliteStorage(TaskStorage):
             raise Things3StorageException(ex)
 
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
+        statuses = ','.join(list(map(lambda s: str(s.value), filters.statuses)))
         sql = f"""
             SELECT
                 project.uuid AS uuid,
@@ -65,13 +66,14 @@ class Things3SqliteStorage(TaskStorage):
                     WHERE
                         task.project = project.uuid AND
                         task.trashed = 0 AND
-                        task.status = {TaskStatus.new}
+                        task.status IN ({statuses})
                 ) AS tasks
             FROM
                 TMTask AS project
             WHERE
                 project.type == {TaskType.project} AND
                 project.trashed == 0 AND
+                project.status IN ({statuses}) AND
                 project.area == '{filters.area}'
             ORDER BY project.title COLLATE NOCASE
         """
@@ -134,6 +136,7 @@ class Things3SqliteStorage(TaskStorage):
             raise Things3StorageException(ex)
 
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
+        statuses = ','.join(list(map(lambda s: str(s.value), filters.statuses)))
         sql = f"""
             SELECT
                 task.uuid AS uuid,
@@ -151,7 +154,7 @@ class Things3SqliteStorage(TaskStorage):
                 ON heading.project = project_heading.uuid
             WHERE
                 task.type == {TaskType.task} AND
-                task.status IN ({TaskStatus.new}, {TaskStatus.completed}) AND
+                task.status IN ({statuses}) AND
                 task.trashed == 0 AND
                 (task.project == '{filters.project_uuid}' OR heading.project == '{filters.project_uuid}')
             ORDER BY task.title COLLATE NOCASE

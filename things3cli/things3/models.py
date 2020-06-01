@@ -1,6 +1,6 @@
 
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Sequence
 from pydantic import BaseModel
 
 
@@ -8,6 +8,9 @@ class TaskStatus(int, Enum):
     new = 0
     canceled = 2
     completed = 3
+
+    # def __repr__(self):
+    #     return str(self.value)
 
 
 class TaskType(int, Enum):
@@ -43,13 +46,20 @@ class Area(Item):
 
 class TaskFilter(BaseModel):
     uuid: Optional[str]
-    project_uuid: Optional[str]
-    status: Optional[str]
+    project_uuid: str
+    statuses: Optional[List[TaskStatus]] = [
+        TaskStatus.new,
+        TaskStatus.completed
+    ]
 
 
 class ProjectFilter(BaseModel):
     uuid: Optional[str]
     area: Optional[str]
+    statuses: Optional[List[TaskStatus]] = [
+        TaskStatus.new,
+        TaskStatus.completed
+    ]
 
 
 class AreaFilter(BaseModel):

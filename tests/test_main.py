@@ -3,12 +3,12 @@ import pytest
 from typing import List
 from unittest import mock
 
-from things3cli import main
-from things3cli.commands.list import ListSubCommand
+from thing import main
+from thing.commands.list import ListSubCommand
 
 
-def run_cli(thigs3cli_args: List[str]):
-    with mock.patch.object(sys, "argv", ["things3cli"] + thigs3cli_args):
+def run_cli(thing_args: List[str]):
+    with mock.patch.object(sys, "argv", ["thing"] + thing_args):
         return main.cli()
 
 
@@ -32,7 +32,7 @@ def test_help_text(capsys):
     ):
         assert not run_cli(["--help"])
     captured = capsys.readouterr()
-    assert "usage: things3cli" in captured.out
+    assert "usage: thing" in captured.out
 
 
 def test_list_text(capsys):

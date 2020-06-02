@@ -3,12 +3,12 @@ from enum import Enum
 from functools import reduce
 from typing import List, Any, Optional
 
-from things3cli.things3.repository import Things3SqliteStorage
-from things3cli.things3.exceptions import Things3StorageException
-from things3cli.things3.models import ProjectFilter, TaskFilter, Item, Task
-from things3cli.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
-from things3cli.exceptions import Things3CliException
-from things3cli.view import print_table
+from thing.things3.repository import Things3SqliteStorage
+from thing.things3.exceptions import Things3StorageException
+from thing.things3.models import ProjectFilter, TaskFilter, Item, Task
+from thing.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
+from thing.exceptions import ThingException
+from thing.view import print_table
 
 
 class ListSubCommand(str, Enum):
@@ -37,11 +37,11 @@ def show_list(args: argparse.Namespace) -> int:
         
         elif args.type is None:
             types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
-            raise Things3CliException(f"You should add the type of task you want to list, like: {types}")
+            raise ThingException(f"You should add the type of task you want to list, like: {types}")
         else:
-            raise Things3CliException(f"Unknown item type to list {args.type}")
+            raise ThingException(f"Unknown item type to list {args.type}")
     except Things3StorageException as ex:
-        raise Things3CliException(ex)
+        raise ThingException(ex)
 
     return 0
 

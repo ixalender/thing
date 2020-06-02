@@ -4,7 +4,7 @@ import argparse
 import textwrap
 
 from .version import __version__
-from .exceptions import Things3CliException
+from .exceptions import ThingException
 from . import commands
 from .commands.list import ListSubCommand
 from .commands.show import ShowSubCommand
@@ -55,7 +55,7 @@ def _add_export_project(subparsers):
     p.add_argument("uuid", help="Project uuid")
     outout_subparsers = p.add_subparsers(
         dest="output",
-        description="Get help for commands with things3cli COMMAND --help"
+        description="Get help for commands with thing COMMAND --help"
     )
     _add_file(outout_subparsers)
     _add_clipborad(outout_subparsers)
@@ -94,7 +94,7 @@ def _add_export(subparsers):
     )
     type_subparsers = p.add_subparsers(
         dest="type",
-        description="Get help for commands with things3cli COMMAND --help"
+        description="Get help for commands with thing COMMAND --help"
     )
     _add_export_project(type_subparsers)
 
@@ -107,7 +107,7 @@ def _add_list(subparsers):
     )
     type_subparsers = p.add_subparsers(
         dest="type",
-        description="Get help for commands with things3cli COMMAND --help"
+        description="Get help for commands with thing COMMAND --help"
     )
     _add_areas(type_subparsers)
     _add_projects(type_subparsers)
@@ -122,7 +122,7 @@ def _add_show(subparsers):
     )
     type_subparsers = p.add_subparsers(
         dest="type",
-        description="Get help for commands with things3cli COMMAND --help"
+        description="Get help for commands with thing COMMAND --help"
     )
     _add_project(type_subparsers)
 
@@ -159,8 +159,8 @@ def run_command(args: argparse.Namespace) -> int:
         elif args.command == commands.CMD_SHOW:
             return commands.show(args)
         else:
-            raise Things3CliException(f"Unknown command {args.command}")
-    except Things3CliException as ex:
+            raise ThingException(f"Unknown command {args.command}")
+    except ThingException as ex:
         print(f'\nError: {ex}\n')
     
     return 1

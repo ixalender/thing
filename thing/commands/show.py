@@ -2,12 +2,12 @@
 import argparse
 from enum import Enum
 
-from things3cli.exceptions import Things3CliException
-from things3cli.things3.repository import Things3SqliteStorage
-from things3cli.things3.exceptions import Things3StorageException
-from things3cli.things3.models import Item, ProjectFilter
-from things3cli.use_cases import ProjectViewUseCase
-from things3cli.view import print_object
+from thing.exceptions import ThingException
+from thing.things3.repository import Things3SqliteStorage
+from thing.things3.exceptions import Things3StorageException
+from thing.things3.models import Item, ProjectFilter
+from thing.use_cases import ProjectViewUseCase
+from thing.view import print_object
 
 
 class ShowSubCommand(str, Enum):
@@ -28,9 +28,9 @@ def show(args: argparse.Namespace) -> int:
         elif args.type == ShowSubCommand.task:
             raise NotImplementedError('Not implemented')
         else:
-            raise Things3CliException(f"Unknown item type to show {args.type}")
+            raise ThingException(f"Unknown item type to show {args.type}")
     except Things3StorageException as ex:
-        raise Things3CliException(ex)
+        raise ThingException(ex)
 
     return 0
 

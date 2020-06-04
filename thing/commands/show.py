@@ -28,7 +28,8 @@ def show(args: argparse.Namespace) -> int:
         elif args.type == ShowSubCommand.task:
             raise NotImplementedError('Not implemented')
         else:
-            raise ThingException(f"Unknown item type to show {args.type}")
+            types = ', '.join(list(map(lambda i: i.value, iter(ShowSubCommand))))
+            raise ThingException(f"Unknown item type to show, try to choose one of: {types}")
     except Things3StorageException as ex:
         raise ThingException(ex)
 

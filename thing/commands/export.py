@@ -63,7 +63,8 @@ def export(args: argparse.Namespace) -> int:
             raise NotImplementedError('Not implemented')
 
         else:
-            raise ThingException(f"Unknown item type to show {args.type}")
+            types = ', '.join(list(map(lambda i: i.value, iter(ExportSubCommand))))
+            raise ThingException(f"Unknown item to export, you should choose one of: {types}")
     except Things3StorageException as ex:
         raise ThingException(ex)
 

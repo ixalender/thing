@@ -38,14 +38,16 @@ def _save_to_clipboard(content: str) -> None:
 
 
 def _proc_output(args: argparse.Namespace, content: str) -> int:
+    outputs = ', '.join(map(lambda i: i.value, iter(ExportOutput)))
     if args is None:
-        outputs = ', '.join(map(lambda i: i.value, iter(ExportOutput)))
         raise ThingException(f'You should specify the way to export [{outputs}].')
 
     if args.output == ExportOutput.file:
         _save_to_file(args.file_path, content)
     elif args.output == ExportOutput.clipboard:
         _save_to_clipboard(content)
+    else:
+        raise ThingException(f'You should specify the way to export [{outputs}].')
     print('Done!')
     return 0
 

@@ -1,5 +1,7 @@
 # Thing
 
+[WIP]
+
 Tiny commandline application for simple work with Things3 app taks and projects.
 
 ## Basic usage

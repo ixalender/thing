@@ -13,6 +13,36 @@ class ProjectView(BaseModel):
     area: Area
     tasks: Optional[List[Task]]
 
+    def _match_status(self, status: TaskStatus):
+            match = {
+                TaskStatus.new: ' ',
+                TaskStatus.completed: 'x',
+            }
+            return match[status]
+    
+    def _format_tasks(self):
+        TASK_TEMPLATE_MD = """[{status}] {title}"""
+        return '\n'.join(map(
+            lambda t: TASK_TEMPLATE_MD.format(
+                status=self._match_status(t.status),
+                title=t.title
+            ), self.tasks or []
+        ))
+
+    def __str__(self):
+        PROJECT_PLAIN_TEXT = textwrap.dedent("""
+        {title}
+        {notes}
+        
+        {tasks}
+        """)
+        
+        return PROJECT_PLAIN_TEXT.format(
+            title=self.title,
+            notes=self.notes,
+            tasks=self._format_tasks()
+        )
+
     def to_md(self) -> str:
         PROJECT_TEMPLATE_MD = textwrap.dedent("""
         # {title}
@@ -24,26 +54,11 @@ class ProjectView(BaseModel):
         ```
         """)
 
-        TASK_TEMPLATE_MD = """[{status}] {title}"""
-
-        def match_status(status: TaskStatus):
-            match = {
-                TaskStatus.new: ' ',
-                TaskStatus.completed: 'x',
-            }
-            return match[status]
-
         md_data = PROJECT_TEMPLATE_MD.format(
             title=self.title,
             notes=self.notes,
-            tasks='\n'.join(map(
-                lambda t: TASK_TEMPLATE_MD.format(
-                    status=match_status(t.status),
-                    title=t.title
-                ), self.tasks or []
-            )),
+            tasks=self._format_tasks()
         )
-
         return md_data
 
 

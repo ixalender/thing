@@ -6,7 +6,7 @@ from thing.exceptions import ThingException
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
 from thing.things3.models import Item, ProjectFilter
-from thing.use_cases import ProjectViewUseCase
+from thing.use_cases import ProjectViewUseCase, ProjectView
 from thing.view import print_object
 
 
@@ -22,7 +22,7 @@ def show(args: argparse.Namespace) -> int:
         if args.type == ShowSubCommand.project:
             pu = ProjectViewUseCase(repo)
             project = pu.get_project(ProjectFilter(uuid=args.uuid))
-            display_object(project)
+            _display(project)
         elif args.type == ShowSubCommand.area:
             raise NotImplementedError('Not implemented')
         elif args.type == ShowSubCommand.task:
@@ -36,5 +36,5 @@ def show(args: argparse.Namespace) -> int:
     return 0
 
 
-def display_object(item: Item) -> None:
-    print_object(item.dict())
+def _display(project: ProjectView) -> None:
+    print(project)

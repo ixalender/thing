@@ -25,6 +25,21 @@ Example
 465263E9-2516-44AB-857A-1B57CF9EA55F  Test Project
 ```
 
+### Show Project
+```
+~ python thing show project {project_uuid}
+```
+Example
+```
+~ python thing show project 465263E9-2516-44AB-857A-1B57CF9EA55F
+
+Test Project
+Project notes.
+
+[x] Task 1
+[ ] Task 2
+```
+
 ### Export Project
 ```
 ~ python thing export project [project_uuid] {file,clipboard}

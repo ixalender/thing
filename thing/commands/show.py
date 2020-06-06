@@ -5,9 +5,8 @@ from enum import Enum
 from thing.exceptions import ThingException
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
-from thing.things3.models import Item, ProjectFilter
+from thing.things3.models import ProjectFilter
 from thing.use_cases import ProjectViewUseCase, ProjectView
-from thing.view import print_object
 
 
 class ShowSubCommand(str, Enum):

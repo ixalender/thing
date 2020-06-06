@@ -2,14 +2,12 @@ import argparse
 import subprocess
 from subprocess import TimeoutExpired, CalledProcessError
 from enum import Enum
-from pydantic import BaseModel
 
 from thing.exceptions import ThingException
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
-from thing.things3.models import Item, ProjectFilter
+from thing.things3.models import ProjectFilter
 from thing.use_cases import ProjectViewUseCase
-from thing.view import print_object
 
 
 class ExportSubCommand(str, Enum):

@@ -1,14 +1,12 @@
 
 import sys
 import argparse
-import textwrap
 
 from .version import __version__
 from .exceptions import ThingException
 from . import commands
 from .commands.list import ListSubCommand
 from .commands.show import ShowSubCommand
-from .things3.models import Project, ProjectFilter, TaskCheckListItem
 
 
 HIDE_CURSOR = "\033[?25l"

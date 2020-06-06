@@ -1,11 +1,10 @@
 
-import typing
 import sqlite3
-from typing import List, Generic, TypeVar, Any, NewType
-from pydantic import validator, parse_obj_as
+from typing import List
+from pydantic import parse_obj_as
 
 from .exceptions import Things3DataBaseException, Things3StorageException, Things3NotFoundException
-from .models import Task, TaskFilter, Project, ProjectFilter, Area, AreaFilter, Item
+from .models import Task, TaskFilter, Project, ProjectFilter, Area, AreaFilter
 from .models import TaskStatus, TaskType
 from .query import SqliteQuery
 from . import DATABASE_FILE

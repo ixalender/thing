@@ -1,6 +1,6 @@
 
 from enum import Enum
-from typing import List, Optional, Sequence
+from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -8,9 +8,6 @@ class TaskStatus(int, Enum):
     new = 0
     canceled = 2
     completed = 3
-
-    # def __repr__(self):
-    #     return str(self.value)
 
 
 class TaskType(int, Enum):

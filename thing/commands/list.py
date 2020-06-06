@@ -1,11 +1,10 @@
 import argparse
 from enum import Enum
-from functools import reduce
-from typing import List, Any, Optional
+from typing import List, Optional
 
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
-from thing.things3.models import ProjectFilter, TaskFilter, Item, Task
+from thing.things3.models import ProjectFilter, TaskFilter, Item
 from thing.use_cases import AreaListUseCase, ProjectListUseCase, TaskListUseCase
 from thing.exceptions import ThingException
 from thing.view import print_table

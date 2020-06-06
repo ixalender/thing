@@ -1,13 +1,11 @@
-import sys
+
 import pytest
 import argparse
 import subprocess
-from typing import List
-from unittest import mock
 
 from thing.commands.export import ExportSubCommand, ExportOutput, export
 from thing.use_cases import ProjectViewUseCase, ProjectView
-from thing.things3.models import ProjectFilter, Area, Task, TaskStatus
+from thing.things3.models import Area, Task, TaskStatus
 
 
 mock_project = ProjectView(
@@ -48,4 +46,4 @@ def test_export(mock_response):
     content = subprocess.check_output(['pbpaste'])
     
     assert content.decode('utf-8') == mock_project.to_md()
-    
+

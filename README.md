@@ -2,7 +2,17 @@
 
 [WIP]
 
-Tiny commandline application for simple work with Things3 app taks and projects.
+Tiny command line application for simple work with Things 3 app tasks and projects.
+
+## Requirements
+
+- Python 3.8+
+
+```shell script
+~ python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+```
+
+> Note: you should have installed [Things 3](https://culturedcode.com/things/) app on your Mac, of course :)
 
 ## Basic usage
 
@@ -44,13 +54,16 @@ Project notes.
 ```
 ~ python thing export project [project_uuid] {file,clipboard}
 ```
-Example of export to clipboard
+Example of export a project to clipboard
 ```
 ~ python thing export project 465263E9-2516-44AB-857A-1B57CF9EA55F clipboard
 ```
-.. then, paste it wherever you want.
+... then, paste it wherever you want.
 
-Example of export to a file
+Example of export a project to a file
 ```
 ~ python thing export project 465263E9-2516-44AB-857A-1B57CF9EA55F file project.md
 ```
+
+## License
+MIT

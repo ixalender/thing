@@ -164,7 +164,7 @@ class Things3SqliteStorage(TaskStorage):
             return list(map(lambda t: parse_obj_as(Task, t), tasks))
 
         except Things3NotFoundException as ex:
-            raise Things3StorageException(f'There are no any tasks for project {filters.project}')
+            raise Things3StorageException(f'There are no any tasks for project {filters.project_uuid}')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 
@@ -172,4 +172,3 @@ class Things3SqliteStorage(TaskStorage):
         connection = sqlite3.connect(
             'file:' + DATABASE_FILE + '?mode=ro', uri=True)
         return connection
-    

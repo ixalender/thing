@@ -3,11 +3,8 @@ from functools import reduce
 
 
 def _find_widest_field(col_name: str, data: List[dict]) -> int:
-    return len(
-        str(max(
-            data, default=dict(), key=lambda p: len(str(p[col_name]))
-        ).get(col_name, ''))
-    )
+    m: dict = max(data, default=dict(), key=lambda p: len(str(p[col_name])))
+    return len(str(m.get(col_name)))
 
 
 def _reduce_col_sizes(m: dict, p: dict) -> dict:

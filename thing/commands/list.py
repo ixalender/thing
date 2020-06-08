@@ -1,6 +1,7 @@
 import argparse
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Sequence, Union
+from pydantic import BaseModel
 
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
@@ -45,7 +46,7 @@ def show_list(args: argparse.Namespace) -> int:
     return 0
 
 
-def display_list(data: List[Item], exclude: Optional[List[str]] = None):
+def display_list(data: Sequence[Union[Item, BaseModel]], exclude: Optional[List[str]] = None):
     to_exclude = exclude or []
 
     def filter_keys(obj: dict) -> dict:

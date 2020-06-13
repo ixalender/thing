@@ -114,3 +114,11 @@ class ProjectViewUseCase:
             area=area,
             tasks=tasks
         )
+
+
+class TaskViewUseCase:
+    def __init__(self, repo: TaskStorage) -> None:
+        self.repo = repo
+    
+    def get_task(self, filters: TaskFilter) -> TaskView:
+        pass

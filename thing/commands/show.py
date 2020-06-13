@@ -5,8 +5,8 @@ from enum import Enum
 from thing.exceptions import ThingException
 from thing.things3.repository import Things3SqliteStorage
 from thing.things3.exceptions import Things3StorageException
-from thing.things3.models import ProjectFilter
-from thing.use_cases import ProjectViewUseCase, ProjectView
+from thing.things3.models import ProjectFilter, TaskFilter
+from thing.use_cases import ProjectViewUseCase, ProjectView, TaskViewUseCase, TaskView
 
 
 class ShowSubCommand(str, Enum):
@@ -22,9 +22,11 @@ def show(args: argparse.Namespace) -> int:
             pu = ProjectViewUseCase(repo)
             project = pu.get_project(ProjectFilter(uuid=args.uuid))
             _display(project)
-        elif args.type == ShowSubCommand.area:
-            raise NotImplementedError('Not implemented')
         elif args.type == ShowSubCommand.task:
+            tu = TaskViewUseCase(repo)
+            project = tu.get_task(TaskFilter(uuid=args.uuid))
+            _display(project)
+        elif args.type == ShowSubCommand.area:
             raise NotImplementedError('Not implemented')
         else:
             types = ', '.join(list(map(lambda i: i.value, iter(ShowSubCommand))))

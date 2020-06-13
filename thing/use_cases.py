@@ -7,24 +7,26 @@ from .things3.models import TaskFilter, ProjectFilter, AreaFilter, Task, Project
 from .things3.repository import TaskStorage
 
 
-class ProjectView(BaseModel):
+class ItemView(BaseModel):
+    def match_status(self, status: TaskStatus):
+        match = {
+            TaskStatus.new: ' ',
+            TaskStatus.completed: 'x',
+        }
+        return match[status]
+
+
+class ProjectView(ItemView):
     title: str
     notes: str
     area: Area
     tasks: Optional[List[Task]]
-
-    def _match_status(self, status: TaskStatus):
-            match = {
-                TaskStatus.new: ' ',
-                TaskStatus.completed: 'x',
-            }
-            return match[status]
     
     def _format_tasks(self):
         TASK_TEMPLATE_MD = """[{status}] {title}"""
         return '\n'.join(map(
             lambda t: TASK_TEMPLATE_MD.format(
-                status=self._match_status(t.status),
+                status=self.match_status(t.status),
                 title=t.title
             ), self.tasks or []
         ))
@@ -62,24 +64,39 @@ class ProjectView(BaseModel):
         return md_data
 
 
-class TaskView(BaseModel):
-    uuid: str
+class TaskView(ItemView):
     title: str
+    notes: str
     project: str
-    status: str
+    status: TaskStatus
+
+    def __str__(self):
+        TASK_PLAIN_TEXT = textwrap.dedent("""
+        [{status}] {title}
+        ---
+        {notes}
+        """)
+        
+        return TASK_PLAIN_TEXT.format(
+            title=self.title,
+            status=self.match_status(self.status),
+            notes=self.notes
+        )
     
 
 class TaskListUseCase:
     def __init__(self, repo: TaskStorage) -> None:
         self.repo = repo
 
-    def get_tasks(self, filters: TaskFilter) -> List[TaskView]:
-        return list(map(lambda t: TaskView(
-            uuid=t.uuid,
-            status=t.status.name,
-            title=t.title,
-            project=t.project,
-        ), self.repo.get_tasks(filters)))
+    def get_tasks(self, filters: TaskFilter) -> List[Task]:
+        return self.repo.get_tasks(filters)
+        # TODO: Use TaskListView instead of Task
+        # return list(map(lambda t: Task(
+        #     uuid=t.uuid,
+        #     status=t.status.name,
+        #     title=t.title,
+        #     project=t.project,
+        # ), self.repo.get_tasks(filters)))
 
 
 class ProjectListUseCase:
@@ -121,4 +138,11 @@ class TaskViewUseCase:
         self.repo = repo
     
     def get_task(self, filters: TaskFilter) -> TaskView:
-        pass
+        task = self.repo.get_task(filters)
+
+        return TaskView(
+            title=task.title,
+            notes=task.notes,
+            project=task.project,
+            status=task.status
+        )

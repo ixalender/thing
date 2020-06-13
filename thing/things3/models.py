@@ -27,6 +27,7 @@ class TaskCheckListItem(Item):
 
 class Task(Item):
     project: str
+    notes: str
     status: TaskStatus
     check_list: Optional[List[TaskCheckListItem]]
 
@@ -43,7 +44,7 @@ class Area(Item):
 
 class TaskFilter(BaseModel):
     uuid: Optional[str]
-    project_uuid: str
+    project_uuid: Optional[str]
     statuses: Optional[List[TaskStatus]] = [
         TaskStatus.new,
         TaskStatus.completed

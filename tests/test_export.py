@@ -21,6 +21,7 @@ mock_project = ProjectView(
             uuid='taask_uuid',
             title='test_task',
             project='proj_uuid',
+            notes='Simple task note',
             status=TaskStatus.new
         )
     ]

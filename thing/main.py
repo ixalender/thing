@@ -44,6 +44,15 @@ def _add_project(subparsers):
     p.add_argument("uuid", help="Project uuid")
 
 
+def _add_task(subparsers):
+    p = subparsers.add_parser(
+        ShowSubCommand.task.value,
+        help="Specified task",
+        description="Specified task",
+    )
+    p.add_argument("uuid", help="Task uuid")
+
+
 def _add_export_project(subparsers):
     p = subparsers.add_parser(
         ShowSubCommand.project.value,
@@ -123,6 +132,7 @@ def _add_show(subparsers):
         description="Get help for commands with thing COMMAND --help"
     )
     _add_project(type_subparsers)
+    _add_task(type_subparsers)
 
 
 def get_parser() -> argparse.ArgumentParser:

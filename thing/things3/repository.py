@@ -20,9 +20,15 @@ class TaskStorage(object):
     def get_area(self, filters: AreaFilter) -> Area: ...
     
     def get_tasks(self, filters: TaskFilter) -> List[Task]: ...
+    
+    def get_task(self, filters: TaskFilter) -> Task: ...
 
 
 class Things3SqliteStorage(TaskStorage):
+    
+    def _filter_statuses(self, statuses: List[TaskStatus]) -> str:
+        return ','.join(list(map(lambda s: str(s.value), statuses)))
+
     def get_areas(self) -> List[Area]:
         sql = f"""
             SELECT
@@ -52,7 +58,7 @@ class Things3SqliteStorage(TaskStorage):
             raise Things3StorageException(ex)
 
     def get_projects(self, filters: ProjectFilter) -> List[Project]:
-        statuses = ','.join(list(map(lambda s: str(s.value), filters.statuses)))
+        statuses = self._filter_statuses(filters.statuses)
         sql = f"""
             SELECT
                 project.uuid AS uuid,
@@ -135,7 +141,7 @@ class Things3SqliteStorage(TaskStorage):
             raise Things3StorageException(ex)
 
     def get_tasks(self, filters: TaskFilter) -> List[Task]:
-        statuses = ','.join(list(map(lambda s: str(s.value), filters.statuses)))
+        statuses = self._filter_statuses(filters.statuses)
         sql = f"""
             SELECT
                 task.uuid AS uuid,
@@ -144,6 +150,10 @@ class Things3SqliteStorage(TaskStorage):
                     WHEN task.project IS NULL THEN heading.project
                     ELSE task.project
                 END AS project,
+                CASE
+                    WHEN task.notes IS NULL THEN ''
+                    ELSE task.notes
+                END AS notes,
                 task.status AS status
             FROM
                 TMTask AS task
@@ -165,6 +175,42 @@ class Things3SqliteStorage(TaskStorage):
 
         except Things3NotFoundException as ex:
             raise Things3StorageException(f'There are no any tasks for project {filters.project_uuid}')
+        except Things3DataBaseException as ex:
+            raise Things3StorageException(ex)
+    
+    def get_task(self, filters: TaskFilter) -> Task:
+        sql = f"""
+            SELECT
+                task.uuid AS uuid,
+                task.title AS title,
+                CASE
+                    WHEN task.project IS NULL THEN heading.project
+                    ELSE task.project
+                END AS project,
+                CASE
+                    WHEN task.notes IS NULL THEN ''
+                    ELSE task.notes
+                END AS notes,
+                task.status AS status
+            FROM
+                TMTask AS task
+            LEFT OUTER JOIN TMTask heading
+                ON task.actionGroup = heading.uuid
+            LEFT OUTER JOIN TMTask project_heading
+                ON heading.project = project_heading.uuid
+            WHERE
+                task.type == {TaskType.task} AND
+                task.trashed == 0 AND
+                task.uuid = '{filters.uuid}'
+            ORDER BY task.title COLLATE NOCASE
+        """
+        try:
+            q = SqliteQuery(connection=self._get_connection(), sql=sql)
+            task: dict = q.execute_for_one()
+            return parse_obj_as(Task, task)
+
+        except Things3NotFoundException as ex:
+            raise Things3StorageException(f'There is no task for {filters.uuid}')
         except Things3DataBaseException as ex:
             raise Things3StorageException(ex)
 

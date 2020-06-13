@@ -1,6 +1,7 @@
 
 import argparse
 from enum import Enum
+from typing import Union
 
 from thing.exceptions import ThingException
 from thing.things3.repository import Things3SqliteStorage
@@ -24,8 +25,8 @@ def show(args: argparse.Namespace) -> int:
             _display(project)
         elif args.type == ShowSubCommand.task:
             tu = TaskViewUseCase(repo)
-            project = tu.get_task(TaskFilter(uuid=args.uuid))
-            _display(project)
+            task = tu.get_task(TaskFilter(uuid=args.uuid))
+            _display(task)
         elif args.type == ShowSubCommand.area:
             raise NotImplementedError('Not implemented')
         else:
@@ -37,5 +38,5 @@ def show(args: argparse.Namespace) -> int:
     return 0
 
 
-def _display(project: ProjectView) -> None:
-    print(project)
+def _display(view: Union[ProjectView, TaskView]) -> None:
+    print(view)

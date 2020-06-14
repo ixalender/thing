@@ -16,6 +16,21 @@ class ItemView(BaseModel):
         return match[status]
 
 
+class TaskItemView(ItemView):
+    uuid: str
+    title: str
+    status: TaskStatus
+
+    def __str__(self):
+        task_plain_text = "{uuid} [{status}] {title}"
+
+        return task_plain_text.format(
+            uuid=self.uuid,
+            title=self.title,
+            status=self.match_status(self.status)
+        )
+
+
 class ProjectView(ItemView):
     title: str
     notes: str
@@ -23,30 +38,30 @@ class ProjectView(ItemView):
     tasks: Optional[List[Task]]
     
     def _format_tasks(self):
-        TASK_TEMPLATE_MD = """[{status}] {title}"""
+        task_template_md = """[{status}] {title}"""
         return '\n'.join(map(
-            lambda t: TASK_TEMPLATE_MD.format(
+            lambda t: task_template_md.format(
                 status=self.match_status(t.status),
                 title=t.title
             ), self.tasks or []
         ))
 
     def __str__(self):
-        PROJECT_PLAIN_TEXT = textwrap.dedent("""
+        project_plain_text = textwrap.dedent("""
         {title}
         {notes}
         
         {tasks}
         """)
         
-        return PROJECT_PLAIN_TEXT.format(
+        return project_plain_text.format(
             title=self.title,
             notes=self.notes,
             tasks=self._format_tasks()
         )
 
     def to_md(self) -> str:
-        PROJECT_TEMPLATE_MD = textwrap.dedent("""
+        project_template_md = textwrap.dedent("""
         # {title}
 
         {notes}
@@ -56,7 +71,7 @@ class ProjectView(ItemView):
         ```
         """)
 
-        md_data = PROJECT_TEMPLATE_MD.format(
+        md_data = project_template_md.format(
             title=self.title,
             notes=self.notes,
             tasks=self._format_tasks()
@@ -71,13 +86,13 @@ class TaskView(ItemView):
     status: TaskStatus
 
     def __str__(self):
-        TASK_PLAIN_TEXT = textwrap.dedent("""
+        task_plain_text = textwrap.dedent("""
         [{status}] {title}
         ---
         {notes}
         """)
         
-        return TASK_PLAIN_TEXT.format(
+        return task_plain_text.format(
             title=self.title,
             status=self.match_status(self.status),
             notes=self.notes
@@ -88,15 +103,13 @@ class TaskListUseCase:
     def __init__(self, repo: TaskStorage) -> None:
         self.repo = repo
 
-    def get_tasks(self, filters: TaskFilter) -> List[Task]:
-        return self.repo.get_tasks(filters)
+    def get_tasks(self, filters: TaskFilter) -> List[TaskItemView]:
         # TODO: Use TaskListView instead of Task
-        # return list(map(lambda t: Task(
-        #     uuid=t.uuid,
-        #     status=t.status.name,
-        #     title=t.title,
-        #     project=t.project,
-        # ), self.repo.get_tasks(filters)))
+        return list(map(lambda t: TaskItemView(
+            uuid=t.uuid,
+            status=t.status,
+            title=t.title
+        ), self.repo.get_tasks(filters)))
 
 
 class ProjectListUseCase:

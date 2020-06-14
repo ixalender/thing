@@ -1,7 +1,5 @@
 # Thing
 
-[WIP]
-
 Tiny command line application for simple work with Things 3 app tasks and projects.
 
 ## Requirements
@@ -12,11 +10,11 @@ Tiny command line application for simple work with Things 3 app tasks and projec
 ~ python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
 ```
 
-> Note: you should have installed [Things 3](https://culturedcode.com/things/) app on your Mac, of course :)
+> Note: you should have [Things 3](https://culturedcode.com/things/) installed on your Mac.
 
 ## Basic usage
 
-### Show Areas
+### List Areas
 ```
 ~ python thing list areas
 
@@ -35,6 +33,21 @@ Example
 465263E9-2516-44AB-857A-1B57CF9EA55F  Test Project
 ```
 
+### List Tasks
+```
+~ python thing list tasks {project_uuid}
+```
+Example
+```
+~ python thing list tasks 465263E9-2516-44AB-857A-1B57CF9EA55F
+
+E360FBD9-483A-47F8-B39E-AA1DB342DAF9 [x] do something
+3E7EDAF4-2BFD-4DFC-9EDF-EA1CFD96ED01 [x] do something else
+BD7D3CA3-4F7D-494E-BF32-6DC8AFE93D57 [ ] do not do anything
+
+```
+
+
 ### Show Project
 ```
 ~ python thing show project {project_uuid}
@@ -46,8 +59,23 @@ Example
 Test Project
 Project notes.
 
-[x] Task 1
-[ ] Task 2
+[x] do something
+[x] do something else
+[ ] do not do anything
+```
+
+### Show Task
+```
+~ python thing show project {project_uuid}
+```
+Example
+```
+~ python thing show task BD7D3CA3-4F7D-494E-BF32-6DC8AFE93D57
+
+[ ] do not do anything
+---
+Because I don't want to be tired.
+
 ```
 
 ### Export Project

@@ -33,7 +33,7 @@ def show_list(args: argparse.Namespace) -> int:
         elif args.type == ListSubCommand.tasks:
             tu = TaskListUseCase(repo)
             tasks = tu.get_tasks(TaskFilter(project_uuid=args.project))
-            display_list(tasks, exclude=['project', 'check_list'])
+            display_list_view(tasks)
         
         elif args.type is None:
             types = ', '.join(list(map(lambda i: i.value, iter(ListSubCommand))))
@@ -44,6 +44,13 @@ def show_list(args: argparse.Namespace) -> int:
         raise ThingException(ex)
 
     return 0
+
+
+def display_list_view(data: Sequence[Union[Item, BaseModel]]):
+    print('')
+    for el in data:
+        print(el)
+    print('')
 
 
 def display_list(data: Sequence[Union[Item, BaseModel]], exclude: Optional[List[str]] = None):

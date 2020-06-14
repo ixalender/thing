@@ -16,7 +16,7 @@ mock_task_view = TaskView(
     status=TaskStatus.completed
 )
 
-mock_task = Task(
+mock_complete_task = Task(
     uuid='task_uuid',
     title='Task title',
     notes='Simple task note',
@@ -24,18 +24,34 @@ mock_task = Task(
     status=TaskStatus.completed
 )
 
+mock_new_task = Task(
+    uuid='task_uuid',
+    title='Task title',
+    notes='Simple task note',
+    project='project_uuid',
+    status=TaskStatus.new
+)
+
 
 @pytest.fixture
 def mock_response(monkeypatch):
 
     def mock_get_task(*args, **kwargs):
-        return mock_task
+        return mock_complete_task
 
-    # monkeypatch.setattr(TaskViewUseCase, "get_task", mock_get_task)
     monkeypatch.setattr(Things3SqliteStorage, "get_task", mock_get_task)
 
 
-def test_show_task(capsys, mock_response):
+@pytest.fixture
+def mock_new_task_response(monkeypatch):
+
+    def mock_get_task(*args, **kwargs):
+        return mock_new_task
+
+    monkeypatch.setattr(Things3SqliteStorage, "get_task", mock_get_task)
+
+
+def test_show_task_complete(capsys, mock_response):
     result = show(argparse.Namespace(**dict(
         type=ShowSubCommand.task,
         uuid='123'
@@ -44,3 +60,14 @@ def test_show_task(capsys, mock_response):
 
     captured = capsys.readouterr()
     assert '[x]' in captured.out
+
+
+def test_show_task_new(capsys, mock_new_task_response):
+    result = show(argparse.Namespace(**dict(
+        type=ShowSubCommand.task,
+        uuid='123'
+    )))
+    assert result == 0
+
+    captured = capsys.readouterr()
+    assert '[ ]' in captured.out

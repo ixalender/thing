@@ -1,10 +1,9 @@
 
 import pytest
 import argparse
-import subprocess
 
 from thing.commands.show import ShowSubCommand, show
-from thing.use_cases import TaskView, TaskViewUseCase
+from thing.use_cases import TaskView
 from thing.things3.models import Task, TaskStatus
 from thing.things3.repository import Things3SqliteStorage
 

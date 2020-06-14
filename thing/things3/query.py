@@ -1,11 +1,8 @@
 
-import typing
 import sqlite3
-from typing import List, Generic, TypeVar, Any, NewType, Optional
-from pydantic.generics import GenericModel
-from pydantic import validator, parse_obj_as, BaseModel
+from typing import List
+from pydantic import validator, BaseModel
 
-from .models import Task, Project, Area
 from .exceptions import Things3DataBaseException, Things3NotFoundException
 
 

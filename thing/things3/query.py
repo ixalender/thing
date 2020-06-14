@@ -18,6 +18,13 @@ class Query(BaseModel):
         arbitrary_types_allowed = True
 
 
+def _dict_factory(cursor, row) -> dict:
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 class SqliteQuery(Query):
     connection: sqlite3.Connection
     sql: str
@@ -34,19 +41,12 @@ class SqliteQuery(Query):
             raise ValueError('must provide sql')
         return v
 
-    def _dict_factory(self, cursor, row) -> dict:
-        d = {}
-        for idx, col in enumerate(cursor.description):
-            d[col[0]] = row[idx]
-        return d
-
     def execute(self) -> List[dict]:
         try:
-            self.connection.row_factory = self._dict_factory
+            self.connection.row_factory = _dict_factory
             cursor = self.connection.cursor()
             cursor.execute(self.sql)
             tasks = cursor.fetchall()
-            # print(tasks)
             if not tasks:
                 raise Things3NotFoundException('Couldn\'t find any data')
 
@@ -54,10 +54,12 @@ class SqliteQuery(Query):
 
         except sqlite3.OperationalError as ex:
             raise Things3DataBaseException(ex)
+        finally:
+            self.connection.close()
     
     def execute_for_one(self) -> dict:
         try:
-            self.connection.row_factory = self._dict_factory
+            self.connection.row_factory = _dict_factory
             cursor = self.connection.cursor()
             cursor.execute(self.sql)
             task = cursor.fetchone()
@@ -68,4 +70,6 @@ class SqliteQuery(Query):
 
         except sqlite3.OperationalError as ex:
             raise Things3DataBaseException(ex)
+        finally:
+            self.connection.close()
 
